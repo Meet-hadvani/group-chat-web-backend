@@ -1,0 +1,36 @@
+{
+  "name": "group-chat-web-backend",
+  "version": "1.0.0",
+  "description": "Backend service for group chat web app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avinashnadkar/group-chat-web-backend.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongoDB",
+    "backend",
+    "api's",
+    "socket.io",
+    "realtime",
+    "chat",
+    "app"
+  ],
+  "author": "Avinash Nadkar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/avinashnadkar/group-chat-web-backend/issues"
+  },
+  "homepage": "https://github.com/avinashnadkar/group-chat-web-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  }
+}
