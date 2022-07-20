@@ -37,14 +37,14 @@ router.post('/signup',async (req,res)=>{
     //post data in database
     let postUser = await newUser.save()
     try{
-        res.cookie("token", token, { httpOnly: true });
         res.json({
             status: "success",
             code: 200,
             message: "Welcome to online group chat.",
             results: {
                 u_id: postUser._id,
-                email : postUser.email
+                email : postUser.email,
+                token : token
             }
         })
     }catch(err){
