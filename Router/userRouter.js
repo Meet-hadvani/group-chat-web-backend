@@ -52,4 +52,38 @@ router.post('/signup',async (req,res)=>{
     }
 })
 
+//Login user
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    let user = await Users.findOne({ email: email });
+    if (!user) return res.status(400).send('Invalid Email or Password.')
+
+    let isMatch = await bcrypt.compare(password, user.password)
+
+    if (!isMatch) {
+        return res.status(400).json({
+            "errors": [{ "msg": "Invalid password" }]
+        })
+    }
+
+    //Create new JWT token 
+    const token = jwt.sign({
+        email
+    }, process.env.JWT_KEY, {
+        expiresIn: 72000000
+    })
+
+    res.json({
+        status: "success",
+        code: 200,
+        message: "Welcome to online group chat.",
+        results: {
+            token: token,
+            u_id: user._id,
+            email: user.email
+        }
+    })
+})
+
 module.exports = router;
