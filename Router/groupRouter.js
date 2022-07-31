@@ -41,4 +41,21 @@ router.post('/create', checkAuth , async (req,res)=>{
 
 })
 
+//fetch all groups
+router.get('/',checkAuth, async (req,res)=>{
+
+    const groups = await Group.find();
+
+    try{
+        res.json({
+            status: "success",
+            code: 200,
+            message: "All groups fetched",
+            result: {groups : groups}
+        })
+    }catch(err){
+        res.status(400).json("error :" + err)
+    }
+})
+
 module.exports = router;
