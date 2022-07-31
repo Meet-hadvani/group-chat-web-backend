@@ -5,6 +5,7 @@ const port = process.env.PORT || 3001
 const mongoose = require('mongoose');
 const cors = require('cors')
 const userRouter = require('./Router/userRouter');
+const groupRouter = require('./Router/groupRouter');
 
 //middlewares
 app.use(express.json());
@@ -26,6 +27,8 @@ db.once('open', () => console.log('connected to db'))
 //Routes
 //route For user endpoint
 app.use('/user',userRouter);
+//route for group endpoint
+app.use('/group',groupRouter)
 
 
 app.listen(port,()=>{
