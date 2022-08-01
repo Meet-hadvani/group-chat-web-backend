@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Users = require('../Models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const checkAuth = require('../Middlewares/checkAuth')
 
 //create new account for user
 router.post('/signup',async (req,res)=>{
@@ -84,6 +85,24 @@ router.post('/login', async (req, res) => {
             email: user.email
         }
     })
+})
+
+//search user
+router.post('/search',checkAuth, async (req,res)=>{
+    let user = await Users.findOne({email : req.body.email})
+    try{
+        res.json({
+            status: "success",
+            code: 200,
+            message: "User found successfully",
+            results: {
+                u_id: user._id,
+                email: user.email
+            }
+        })
+    }catch(err){
+        res.status(400).json({error:err})
+    }
 })
 
 module.exports = router;
