@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
         type : Boolean,
         default : true
     },
+    friends : [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref:'Users'
+    }],
     date:{
         type : Date,
         default : new Date

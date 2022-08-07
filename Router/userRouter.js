@@ -105,4 +105,43 @@ router.post('/search',checkAuth, async (req,res)=>{
     }
 })
 
+//send friend request
+router.post('/add-friend',checkAuth, async (req,res) => {
+
+    //insert u_id to friends document
+    let user = await Users.findOneAndUpdate({
+        email : req.body.email
+    },{
+        $push : {
+            friends : req.body.id
+        }
+    })
+
+    //insert friends u_id to users document
+    let userTwo = await Users.findOneAndUpdate({
+        _id : req.body.id
+    },{
+        $push : {
+            friends : user._id
+        }
+    })
+
+    //send friends list in json
+    let friends = [...userTwo.friends, user._id]
+
+    try{
+        res.json({
+            status: "success",
+            code: 200,
+            message: "User added to friend list successfully",
+            results: {
+                
+                friends : friends
+            }
+        })
+    }catch(err){
+        res.status(400).json({error:err})
+    }
+})
+
 module.exports = router;
