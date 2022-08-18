@@ -101,7 +101,7 @@ router.post('/search',checkAuth, async (req,res)=>{
             }
         })
     }catch(err){
-        res.status(400).json({error:err})
+        res.status(400).json({error:err, errorMsg : 'Sorry user not found'})
     }
 })
 
@@ -143,5 +143,32 @@ router.post('/add-friend',checkAuth, async (req,res) => {
         res.status(400).json({error:err})
     }
 })
+
+//fetch friends
+router.get('/friends', checkAuth, async (req,res)=>{
+     
+    //find user
+    let user = await Users.findOne({email:req.body.email})
+    
+
+    let users = await Users.find({"_id":{"$in":user.friends}})
+
+    //send friends list in json
+
+    try{
+        res.json({
+            status: "success",
+            code: 200,
+            message: "Friend list found successfully",
+            results: {
+                friends : users
+            }
+        })
+    }catch(err){
+        res.status(400).json({error:err})
+    }
+
+})
+
 
 module.exports = router;
