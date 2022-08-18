@@ -145,7 +145,7 @@ router.post('/add-friend',checkAuth, async (req,res) => {
 })
 
 //fetch friends
-router.get('/friends', checkAuth, async (req,res)=>{
+router.post('/friends', checkAuth, async (req,res)=>{
      
     //find user
     let user = await Users.findOne({email:req.body.email})
