@@ -153,6 +153,14 @@ router.post('/friends', checkAuth, async (req,res)=>{
 
     let users = await Users.find({"_id":{"$in":user.friends}})
 
+    let newUsers = users.map((el)=>{
+        return {
+            email: el.email,
+            _id : el._id,
+            isOnline : el.isOnline
+        }
+    })
+
     //send friends list in json
 
     try{
@@ -161,7 +169,7 @@ router.post('/friends', checkAuth, async (req,res)=>{
             code: 200,
             message: "Friend list found successfully",
             results: {
-                friends : users
+                friends : newUsers 
             }
         })
     }catch(err){
