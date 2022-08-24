@@ -41,6 +41,21 @@ router.post('/create', checkAuth , async (req,res)=>{
 
 })
 
+//fetch users groups
+router.get('/',checkAuth, async(req,res)=>{
+    let groups = await Group.find({"members":{"$elemMatch":{"email":req.query.email}}})
+    try{
+        res.json({
+            status: "success",
+            code: 200,
+            message: "Your groups fetched",
+            result: {groups : groups}
+        })
+    }catch(err){
+        res.status(400).json("error :" + err)
+    }
+})
+
 //fetch all groups
 router.get('/',checkAuth, async (req,res)=>{
 
