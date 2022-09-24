@@ -73,4 +73,23 @@ router.get('/',checkAuth, async (req,res)=>{
     }
 })
 
+
+// fetch group by id
+router.get('/:groupId',checkAuth, async (req,res)=>{
+    
+    const group = await Group.findOne({"_id":req.params.groupId})
+
+    try{
+        res.json({
+            status: "success",
+            code: 200,
+            message: `${group.name} group data fetched successfully`,
+            result: {group : group}
+        })
+    }catch(err){
+        res.status(400).json("error :" + err)
+    }
+
+})
+
 module.exports = router;
