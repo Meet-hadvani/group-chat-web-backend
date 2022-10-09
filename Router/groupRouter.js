@@ -6,8 +6,10 @@ const checkAuth = require('../Middlewares/checkAuth');
 router.post('/create', checkAuth , async (req,res)=>{
     
     //check if user is exist or not
-    let existingGroup = await Group.find({name:req.body.groupName})
     try{
+
+        let existingGroup = await Group.find({name:req.body.groupName})
+
         if(existingGroup.length != 0 && existingGroup[0].name == req.body.groupName){
             return res.status(200).json({message : "This group name is already in use"})
         }
@@ -21,9 +23,11 @@ router.post('/create', checkAuth , async (req,res)=>{
         members : req.body.members
     })
 
-    let addGroup = await newGroup.save()
 
     try{
+        
+        let addGroup = await newGroup.save()
+
         res.json({
             status: "success",
             code: 200,
@@ -43,8 +47,11 @@ router.post('/create', checkAuth , async (req,res)=>{
 
 //fetch users groups
 router.get('/',checkAuth, async(req,res)=>{
-    let groups = await Group.find({"members":{"$elemMatch":{"email":req.query.email}}})
+
     try{
+    
+        let groups = await Group.find({"members":{"$elemMatch":{"email":req.query.email}}})
+
         res.json({
             status: "success",
             code: 200,
@@ -59,9 +66,10 @@ router.get('/',checkAuth, async(req,res)=>{
 //fetch all groups
 router.get('/',checkAuth, async (req,res)=>{
 
-    const groups = await Group.find();
-
     try{
+
+        const groups = await Group.find();
+
         res.json({
             status: "success",
             code: 200,
@@ -77,9 +85,8 @@ router.get('/',checkAuth, async (req,res)=>{
 // fetch group by id
 router.get('/:groupId',checkAuth, async (req,res)=>{
     
-    const group = await Group.findOne({"_id":req.params.groupId})
-
     try{
+        const group = await Group.findOne({"_id":req.params.groupId})
         res.json({
             status: "success",
             code: 200,
