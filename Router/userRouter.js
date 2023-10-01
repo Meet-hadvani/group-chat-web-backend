@@ -89,15 +89,18 @@ router.post('/login', async (req, res) => {
 
 //search user
 router.post('/search',checkAuth, async (req,res)=>{
-    let user = await Users.findOne({email : req.body.email})
+
+    const searchTerm = req.body.email;
+    
+    let users = await Users.find({ email: { $regex: searchTerm, $options: 'i' } });
+
     try{
         res.json({
             status: "success",
             code: 200,
             message: "User found successfully",
             results: {
-                u_id: user._id,
-                email: user.email
+               users
             }
         })
     }catch(err){
