@@ -3,25 +3,26 @@
 require('dotenv').config();
 const JWT = require('jsonwebtoken');
 
-module.exports = async (req,res,next) => {
+module.exports = async (req, res, next) => {
 
     const token = req.header('x-auth-token')
 
-    if(!token){
+    if (!token) {
         return res.status(400).json({
-            "errors":[{
-                "msg" : "No token found"
+            "errors": [{
+                "msg": "No token found"
             }]
         })
     }
 
-    try{
-       let user =  JWT.verify(token,process.env.JWT_KEY);
+    try {
+        let user = JWT.verify(token, process.env.JWT_KEY);
+        req.userInfo = user;
         next();
-    }catch(err){
+    } catch (err) {
         return res.status(400).json({
-            "errors":[{
-                "msg" : "Token invalid"
+            "errors": [{
+                "msg": "Token invalid"
             }]
         })
     }
