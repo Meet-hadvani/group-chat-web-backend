@@ -1,23 +1,6 @@
 const Mongoose =  require('mongoose');
-// const userSchema = require('./userModel')
+const Schema = Mongoose.Schema;
 
-const userSchema = new Mongoose.Schema({
-    email : {
-        type : String,
-        required : true
-    },
-    isOnline : {
-        type : Boolean,
-        default : false
-    },
-    isAdmin : {
-        type: Boolean
-    },
-    joiningDate:{
-        type : Date,
-        default : new Date
-    }
-},{ _id : false })
 
 const groupSchema = new Mongoose.Schema({
     name : {
@@ -31,7 +14,8 @@ const groupSchema = new Mongoose.Schema({
     },
 
     members: [{
-        type : userSchema
+        type: Schema.Types.ObjectId,
+        ref: 'User' // Reference to the 'User' model
     }],
 
     date:{

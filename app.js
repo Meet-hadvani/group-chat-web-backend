@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const cors = require('cors')
 const userRouter = require('./Router/userRouter');
 const groupRouter = require('./Router/groupRouter');
+const friendRouter = require('./Router/friendRouter');
 
 //middlewares
 app.use(express.json());
@@ -29,6 +30,8 @@ db.once('open', () => console.log('connected to db'))
 app.use('/user',userRouter);
 //route for group endpoint
 app.use('/group',groupRouter)
+//route for friends
+app.use('/friends',friendRouter);
 
 
 app.listen(port,()=>{
