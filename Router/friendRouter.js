@@ -16,6 +16,8 @@ router.get('/', checkAuth, async (req, res) => {
 
         let friendRequests = await Users.find({ "_id": { "$in": user.friendRequests } })
 
+        let friendRequestsSent = await Users.find({ "_id": { "$in": user.sendFriendRequests } })
+
         let friendsList = friends.map((el) => {
             return {
                 email: el.email,
@@ -32,6 +34,14 @@ router.get('/', checkAuth, async (req, res) => {
             }
         })
 
+        let friendRequestsSentList = friendRequestsSent.map((el) => {
+            return {
+                email: el.email,
+                _id: el._id,
+                isOnline: el.isOnline
+            }
+        })
+
         //send friends list in json
 
         res.json({
@@ -40,7 +50,8 @@ router.get('/', checkAuth, async (req, res) => {
             message: "Friend list found successfully",
             results: {
                 friends: friendsList,
-                friendRequests : friendRequestsList
+                friendRequests : friendRequestsList,
+                friendRequestsSent : friendRequestsSentList
             }
         })
     } catch (err) {
@@ -109,6 +120,54 @@ router.post('/add-friend', checkAuth, async (req, res) => {
                 sendRequests: sendfriendsRequestsList
             }
         })
+    } catch (err) {
+        console.log("Error - ", err)
+        res.status(500).json({ errorMsg: 'Internal server error !' });
+    }
+})
+
+
+//cacnel sent friend request
+router.post('/cancel-friend-request', checkAuth, async (req, res) => {
+
+    const userDetailsFromToken = req.userInfo
+    const idOfFriend = req.body.id;
+
+    try {
+
+        //insert u_id to friends document
+        let user = await Users.findOne({ email: userDetailsFromToken.email });
+        // Check if idOfFriend exists in the friendRequests array
+        const sendFriendRequestIndex = user.sendFriendRequests.findIndex((friendId) => friendId == idOfFriend);
+
+        let friend = await Users.findOne({ _id: idOfFriend })
+        // Check if idOfFriend exists in the friendRequests array
+        const usersId = user._id.toHexString();
+        const friendRequestIndex = friend.friendRequests.findIndex((friendId) => friendId == usersId);
+
+        if (friendRequestIndex !== -1 && sendFriendRequestIndex !== -1) {
+
+            // Remove id of Friend from sendFriendRequests
+            user.sendFriendRequests.splice(friendRequestIndex, 1);
+            // Save the updated user document
+            await user.save();
+
+            //Remove id of user from friends friend request array
+            friend.friendRequests.splice(sendFriendRequestIndex, 1)
+            // Save the updated user document
+            await friend.save();
+
+            res.json({
+                status: "success",
+                code: 200,
+                message: "Friend request canceled",
+            });
+
+        } else {
+            res.status(400).json({
+                errorMsg: "Friend request not found",
+            });
+        }
     } catch (err) {
         console.log("Error - ", err)
         res.status(500).json({ errorMsg: 'Internal server error !' });
