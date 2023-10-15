@@ -12,9 +12,19 @@ router.get('/', checkAuth, async (req, res) => {
         //find user
         let user = await Users.findOne({ email: userDetailsFromToken.email })
 
-        let users = await Users.find({ "_id": { "$in": user.friends } })
+        let friends = await Users.find({ "_id": { "$in": user.friends } })
 
-        let newUsers = users.map((el) => {
+        let friendRequests = await Users.find({ "_id": { "$in": user.friendRequests } })
+
+        let friendsList = friends.map((el) => {
+            return {
+                email: el.email,
+                _id: el._id,
+                isOnline: el.isOnline
+            }
+        })
+
+        let friendRequestsList = friendRequests.map((el) => {
             return {
                 email: el.email,
                 _id: el._id,
@@ -29,7 +39,8 @@ router.get('/', checkAuth, async (req, res) => {
             code: 200,
             message: "Friend list found successfully",
             results: {
-                friends: newUsers
+                friends: friendsList,
+                friendRequests : friendRequestsList
             }
         })
     } catch (err) {
@@ -123,7 +134,6 @@ router.post('/accept-friend-request', checkAuth, async (req, res) => {
         const usersId = user._id.toHexString();
         const sendFriendRequestIndex = friend.sendFriendRequests.findIndex((friendId) => friendId == usersId);
 
-        console.log(user._id)
         if (friendRequestIndex !== -1 && sendFriendRequestIndex !== -1) {
 
             // Remove id of Friend from friendRequests
@@ -157,6 +167,54 @@ router.post('/accept-friend-request', checkAuth, async (req, res) => {
     }
 })
 
+
+
+//reject friend request
+router.post('/reject-friend-request', checkAuth, async (req, res) => {
+
+    const userDetailsFromToken = req.userInfo
+    const idOfFriend = req.body.id;
+
+    try {
+
+        //insert u_id to friends document
+        let user = await Users.findOne({ email: userDetailsFromToken.email });
+        // Check if idOfFriend exists in the friendRequests array
+        const friendRequestIndex = user.friendRequests.findIndex((friendId) => friendId == idOfFriend);
+
+        let friend = await Users.findOne({ _id: idOfFriend })
+        // Check if idOfFriend exists in the friendRequests array
+        const usersId = user._id.toHexString();
+        const sendFriendRequestIndex = friend.sendFriendRequests.findIndex((friendId) => friendId == usersId);
+
+        if (friendRequestIndex !== -1 && sendFriendRequestIndex !== -1) {
+
+            // Remove id of Friend from friendRequests
+            user.friendRequests.splice(friendRequestIndex, 1);
+            // Save the updated user document
+            await user.save();
+
+            //Remove id of user from friends send friend request array
+            friend.sendFriendRequests.splice(sendFriendRequestIndex, 1)
+            // Save the updated user document
+            await friend.save();
+
+            res.json({
+                status: "success",
+                code: 200,
+                message: "Friend request rejected",
+            });
+
+        } else {
+            res.status(400).json({
+                errorMsg: "Friend request not found",
+            });
+        }
+    } catch (err) {
+        console.log("Error - ", err)
+        res.status(500).json({ errorMsg: 'Internal server error !' });
+    }
+})
 
 
 module.exports = router;
