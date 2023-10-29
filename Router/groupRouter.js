@@ -37,6 +37,7 @@ router.post('/create', checkAuth, async (req, res) => {
             message: "New group created successfully",
             results: {
                 name: addGroup.name,
+                groupId : addGroup._id,
                 date: addGroup.date,
                 createdBy: addGroup.createdBy,
                 members: addGroup.members
@@ -52,7 +53,7 @@ router.post('/create', checkAuth, async (req, res) => {
 router.post('/add-member', checkAuth, async (req, res) => {
 
     const userDetailsFromToken = req.userInfo;
-    const membersId = req.body.memberId;
+    const members = req.body.members;
     const groupId = req.body.groupId;
 
     //check if group is exist or not
@@ -61,13 +62,18 @@ router.post('/add-member', checkAuth, async (req, res) => {
         let user = await Users.findById(userDetailsFromToken.id);
 
         //check if member is friend with user
-        const isFriend = user.friends.includes(membersId);
+        let isFriend = true;
+
+        for(el in members){
+            isFriend =  user.friends.includes(members[el]);
+            if(!isFriend) break;
+        }
 
         if (!isFriend) {
-            return  res.json({
+            return res.json({
                 status: "failed",
                 code: 403,
-                message: "The user is not friends with the member."
+                message: "The user is not friend with some members."
             })
         }
 
@@ -88,7 +94,7 @@ router.post('/add-member', checkAuth, async (req, res) => {
             _id: groupId
         }, {
             $push: {
-                members: membersId
+                members: [...members]
             }
         })
 
@@ -131,9 +137,9 @@ router.post('/remove-member', checkAuth, async (req, res) => {
         }
 
         //find index of member from groups member array to splice
-        const membersIndex = group.members.findIndex((memberIdFromGroup)=> memberIdFromGroup ==  membersId);
+        const membersIndex = group.members.findIndex((memberIdFromGroup) => memberIdFromGroup == membersId);
 
-        if(membersIndex  !== -1){
+        if (membersIndex !== -1) {
 
             //remove member from group 
             group.members.splice(membersIndex, 1);
@@ -146,7 +152,7 @@ router.post('/remove-member', checkAuth, async (req, res) => {
                 message: "Member removed from group successfully"
             })
 
-        }else{
+        } else {
             return res.json({
                 status: "failed",
                 code: 400,
@@ -163,32 +169,16 @@ router.post('/remove-member', checkAuth, async (req, res) => {
 //fetch users groups
 router.get('/', checkAuth, async (req, res) => {
 
+    const userDetailsFromToken = req.userInfo;
+
     try {
 
-        let groups = await Group.find({ "members": { "$elemMatch": { "email": req.query.email } } })
+        let groups = await Group.find({ "members": userDetailsFromToken.id });
 
         res.json({
             status: "success",
             code: 200,
             message: "Your groups fetched",
-            result: { groups: groups }
-        })
-    } catch (err) {
-        res.status(400).json("error :" + err)
-    }
-})
-
-//fetch all groups
-router.get('/', checkAuth, async (req, res) => {
-
-    try {
-
-        const groups = await Group.find();
-
-        res.json({
-            status: "success",
-            code: 200,
-            message: "All groups fetched",
             result: { groups: groups }
         })
     } catch (err) {
