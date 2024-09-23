@@ -6,3 +6,6 @@
 
 #network request file
 .rest
+
+#static react build files
+/build
