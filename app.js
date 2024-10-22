@@ -5,6 +5,7 @@ const socketIO = require('socket.io');
 const app = express()
 const server = http.createServer(app);
 const io = socketIO(server);
+const SetupSocketConnections = require('./websocket');
 const port = process.env.PORT || 3001
 const mongoose = require('mongoose');
 const path = require('path');
@@ -12,6 +13,7 @@ const cors = require('cors')
 const userRouter = require('./Router/userRouter');
 const groupRouter = require('./Router/groupRouter');
 const friendRouter = require('./Router/friendRouter');
+const jwt = require('jsonwebtoken');
 
 //middlewares
 app.use(express.json());
@@ -40,58 +42,6 @@ mongoose.connect(process.env.DB_URI,{
 const db = mongoose.connection;
 db.once('open', () => console.log('connected to db'))
 
-
-//serve react build
-app.use(express.static(path.join(__dirname, 'build')));
-// Handle any requests that don't match the above
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
-
-/*
-// Socket.IO event handling
-io.use((socket, next) => {
-  // Get the JWT token from the handshake headers
-  const token = socket.handshake.headers['authorization'];
-
-  if (!token) {
-    // If no token is present, disconnect the user
-    return next(new Error('Authentication error: No token provided'));
-  }
-
-  try {
-    // Verify the JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Attach user information to the socket object for later use
-    socket.user = decoded.user;
-    next();
-  } catch (error) {
-    // If token verification fails, disconnect the user
-    return next(new Error('Authentication error: Invalid token'));
-  }
-});
-
-
-// Socket.IO event handling
-io.on('connection', (socket) => {
-    console.log('A user connected', socket.user);
-  
-    // Handle custom events
-    socket.on('chat message', (message) => {
-      console.log('Message from client:', message);
-  
-      // Broadcast the message to all connected clients
-      io.emit('chat message', message);
-    });
-  
-    socket.on('disconnect', () => {
-      console.log('User disconnected');
-    });
-  });
-*/
-
-
 //Routes
 //route For user endpoint
 app.use('/user',userRouter);
@@ -100,6 +50,16 @@ app.use('/group',groupRouter)
 //route for friends
 app.use('/friends',friendRouter);
 
+
+//serve react build
+app.use(express.static(path.join(__dirname, 'build')));
+// Handle any requests that don't match the above
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+//establish socket connection
+SetupSocketConnections(io,jwt);
 
 server.listen(port,()=>{
    console.log(`App is running on ${port}`)
