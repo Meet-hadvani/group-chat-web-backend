@@ -33,10 +33,10 @@ const corsOptions = {
 
 //connect to db
 //Connect to the database. the username and password is safe in .env file
-mongoose.connect(process.env.DB_URI,{
-    useNewUrlParser : true,
-    useUnifiedTopology : true
-})
+mongoose.connect(process.env.DB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((error) => console.error('Error connecting to MongoDB:', error));
+
 
 //To check if databse connected
 const db = mongoose.connection;
