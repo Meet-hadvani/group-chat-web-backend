@@ -19,7 +19,7 @@ const jwt = require('jsonwebtoken');
 app.use(express.json());
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // Update with your frontend's origin
+    origin: process.env.FRONT_END_URI_FOR_CORS, // Update with your frontend's origin
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
