@@ -53,7 +53,7 @@ app.use('/friends',friendRouter);
 
 //serve react build
 app.use(express.static(path.join(__dirname, 'build')));
-// Handle any requests that don't match the above
+//Handle any requests that don't match the above
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
